@@ -1,0 +1,77 @@
+    function AddListing() {
+    const { state } = useLocation();
+    const [formData, setFormData] = useState({
+        internalName: '',
+        title: '',
+        shortDescription: '',
+        description: '',
+        locationTypeId: null,
+        lineOne: '',
+        lineTwo: '',
+        city: '',
+        zip: null,
+        stateId: null,
+        latitude: null,
+        longitude: null,
+        bedRooms: null,
+        baths: null,
+        housingTypeId: null,
+        accessTypeId: null,
+        guestCapacity: null,
+        costPerNight: null,
+        costPerWeek: null,
+        checkInTime: null,
+        checkOutTime: null,
+        daysAvailable: null,
+        amenities: [],
+        name: '',
+        hasVeteranBenefits: null,
+        isHostProvided: null,
+        images: [],
+        hasVerifiedOwnership: true,
+        isActive: true,
+        createdBy: 1,
+        modifiedBy: null,
+    });
+    _logger(formData, 'HookState Test');
+    _logger(state, 'Edit Listing Data');
+    const navigate = useNavigate();
+
+    const onChange = (values) => {
+        _logger(values, 'onChange');
+        setFormData((prevState) => {
+            const sd = { ...prevState, ...values };
+            return sd;
+        });
+    };
+
+    useEffect(() => {
+        _logger('use effect firing');
+        if (state?.type === 'LISTING_FORM' && state.payload) {
+            _logger(state);
+            setFormData((prevState) => {
+                return { ...prevState, ...state.payload };
+            });
+        }
+    }, []);
+
+    const onFinish = () => {
+        _logger('Finish button clicked', formData);
+        if (!state) {
+            listingServices.add(formData).then(onAddListingSuccess).catch(onAddListingError);
+        } else {
+            listingServices.update(state.payload.id, formData).then(onEditListingSuccess).catch(onEditListingError);
+        }
+    };
+ 
+    const onEditListingSuccess = (response) => {
+        _logger(response, 'onEditListingSuccess');
+        toast.success('Listing Successfully Updated');
+        navigate('/profile');
+    };
+
+    const onEditListingError = (response) => {
+        _logger(response, 'onEditListingError');
+        toast.error('Listing Was Not Updated, Please Try Again');
+        _logger(response, 'onEditListingError');
+    };
